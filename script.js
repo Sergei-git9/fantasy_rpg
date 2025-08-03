@@ -5,7 +5,9 @@ const locations = [
 const items = ["Зелье лечения", "Меч", "Щит", "Карта подземелья", "Магический кристалл"];
 
 const shopItems = [
-    { name: "Зелье лечения", price: 10, effect: () => healPlayer(30) }
+     { name: "Зелье лечения", price: 10, effect: () => healPlayer(30) },
+     { name: "Меч", price: 50 },
+     { name: "Щит", price: 40 }
 ];
 
 const enemies = [
@@ -49,7 +51,7 @@ function startGame() {
     `;
 }
 
-function createCharacter() {
+ function createCharacter() {
     const name = document.getElementById("name").value;
     const charClass = document.getElementById("class").value;
     if (!name) {
@@ -57,15 +59,21 @@ function createCharacter() {
         return;
     }
     const player = {
-        name: name,
-        class: charClass,
-        hp: 100,
-        inventory: [],
-        location: "Деревня Эльмир",
-        quest: null,
-        exp: 0,
-        gold: 0
+    name: name,
+    class: charClass,
+    hp: 100,
+    inventory: [],
+    location: "Деревня Эльмир",
+    quest: null,
+    exp: 0,
+    gold: 100,
+    level: 1,
+    equipment: {
+        weapon: null,
+        armor: null
+    }
     };
+
     localStorage.setItem("player", JSON.stringify(player));
     showMainScreen();
 }
@@ -76,7 +84,9 @@ function showMainScreen() {
     let questText = player.quest ? `<p>Задание: ${player.quest.title} (Прогресс: ${player.quest.progress || 0}/${player.quest.targetCount})</p>` : "";
     screen.innerHTML = `
         <h2>${player.name} (${player.class})</h2>
+        <h2>${player.name} (${player.class}) — Уровень: ${player.level}</h2>
         <p>HP: ${player.hp} | Exp: ${player.exp} | 💰: ${player.gold}</p>
+        <p>Оружие: ${player.equipment.weapon || "нет"} | Броня: ${player.equipment.armor || "нет"}</p>
         <p>Локация: ${player.location}</p>
         ${questText}
         <button onclick="explore()">Осмотреться</button>
@@ -106,31 +116,64 @@ function explore() {
 
 function showInventory() {
     const player = JSON.parse(localStorage.getItem("player"));
-    if (player.inventory.length) {
-        let content = "Ваш инвентарь:\n";
-        player.inventory.forEach((item, i) => {
-            content += `${i + 1}) ${item}\n`;
-        });
-        const use = confirm(content + "\nХотите использовать зелье лечения?");
-        if (use && player.inventory.includes("Зелье лечения")) {
-            player.inventory.splice(player.inventory.indexOf("Зелье лечения"), 1);
-            player.hp = Math.min(player.hp + 30, 100);
-            alert("Вы использовали зелье. HP восстановлено.");
-        }
-    } else {
+    if (!player.inventory.length) {
         alert("Инвентарь пуст.");
+        return showMainScreen();
     }
+
+    let content = "Ваш инвентарь:\n";
+    player.inventory.forEach((item, i) => {
+        content += `${i + 1}) ${item}\n`;
+    });
+
+    const choice = prompt(content + "\nВведите номер предмета для использования/экипировки:");
+    const index = parseInt(choice) - 1;
+    const item = player.inventory[index];
+
+    if (!item) {
+        alert("Неверный выбор.");
+        return showMainScreen();
+    }
+
+    if (item === "Зелье лечения") {
+        player.hp = Math.min(player.hp + 30, 100);
+        alert("Вы использовали зелье. HP восстановлено.");
+        player.inventory.splice(index, 1);
+    } else if (["Меч", "Боевой топор", "Посох мага"].includes(item)) {
+        player.equipment.weapon = item;
+        alert(`Вы экипировали оружие: ${item}`);
+        player.inventory.splice(index, 1);
+    } else if (["Щит", "Кожаная броня", "Мантия"].includes(item)) {
+        player.equipment.armor = item;
+        alert(`Вы экипировали броню: ${item}`);
+        player.inventory.splice(index, 1);
+    } else {
+        alert("Этот предмет нельзя использовать.");
+    }
+
     localStorage.setItem("player", JSON.stringify(player));
     showMainScreen();
 }
+
 
 function startBattle() {
     const enemy = JSON.parse(JSON.stringify(enemies[Math.floor(Math.random() * enemies.length)]));
     const player = JSON.parse(localStorage.getItem("player"));
     let battleLog = `Вы встретили ${enemy.name}!\n`;
     while (enemy.hp > 0 && player.hp > 0) {
-        enemy.hp -= 15;
-        player.hp -= enemy.attack;
+        let weaponBonus = 0;
+        if (player.equipment.weapon === "Меч") weaponBonus = 5;
+        if (player.equipment.weapon === "Боевой топор") weaponBonus = 7;
+        if (player.equipment.weapon === "Посох мага") weaponBonus = 6;
+
+        let armorBonus = 0;
+        if (player.equipment.armor === "Щит") armorBonus = 3;
+        if (player.equipment.armor === "Кожаная броня") armorBonus = 5;
+        if (player.equipment.armor === "Мантия") armorBonus = 2;
+
+     enemy.hp -= 15 + weaponBonus;
+    player.hp -= Math.max(0, enemy.attack - armorBonus);
+
         battleLog += `Вы ударили ${enemy.name}, его HP: ${enemy.hp}\n`;
         battleLog += `${enemy.name} атакует вас. Ваш HP: ${player.hp}\n`;
     }
@@ -138,6 +181,16 @@ function startBattle() {
         battleLog += `Вы победили ${enemy.name}!\n+${enemy.reward.exp} опыта, +${enemy.reward.gold} монет`;
         player.exp += enemy.reward.exp;
         player.gold += enemy.reward.gold;
+
+// Повышение уровня
+       const expToLevel = player.level * 100;
+        if (player.exp >= expToLevel) {
+             player.exp -= expToLevel;
+             player.level++;
+            player.hp = 100; // восстановим HP
+            alert(`Поздравляем! Вы достигли уровня ${player.level}! HP восстановлено.`);
+}
+
 
         // Проверка и обновление задания
         if (player.quest && player.quest.target === enemy.name) {
