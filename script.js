@@ -66,7 +66,7 @@ function startGame() {
     location: "Деревня Эльмир",
     quest: null,
     exp: 0,
-    gold: 100,
+    gold: 0,
     level: 1,
     equipment: {
         weapon: null,
@@ -288,7 +288,19 @@ function resetGame() {
 }
 
 window.onload = () => {
-    if (localStorage.getItem("player")) {
+    const player = loadGame();
+    if (player) {
         showMainScreen();
+    } else {
+        startGame();
     }
 };
+
+
+function loadGame() {
+    const savedPlayer = localStorage.getItem("player");
+    if (savedPlayer) {
+        return JSON.parse(savedPlayer);
+    }
+    return null;
+}
