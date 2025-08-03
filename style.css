@@ -1,0 +1,26 @@
+body {
+    background: url('images/my_background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Georgia', serif;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+#game {
+    background-color: rgba(0, 0, 0, 0.7);
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #5b3c11;
+    color: white;
+    margin: 5px;
+}
