@@ -1,26 +1,89 @@
+/* Основной фон и шрифты */
 body {
     background: url('images/my_background.jpg') no-repeat center center fixed;
     background-size: cover;
     font-family: 'Georgia', serif;
-    color: #fff;
+    color: #f0e6d2;
     margin: 0;
     padding: 0;
 }
+
+#log {
+    height: 250px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.7);
+    color: #f0e6d2;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 20px;
+    font-family: monospace;
+    font-size: 14px;
+    white-space: pre-wrap; /* перенос строк */
+}
+
+
+/* Центральный блок игры */
 #game {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(15, 15, 15, 0.85);
     max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    border-radius: 10px;
+    margin: 60px auto;
+    padding: 25px 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.4);
     text-align: center;
 }
+
+/* Заголовок */
+#game h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #f9c74f;
+    text-shadow: 2px 2px 4px #222;
+}
+
+/* Кнопки */
 button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     font-size: 18px;
     cursor: pointer;
     border: none;
-    border-radius: 5px;
-    background-color: #5b3c11;
-    color: white;
-    margin: 5px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #c89f3e, #a1741b);
+    color: #fff;
+    margin: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    transition: background 0.3s ease;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #f9c74f, #c89f3e);
+}
+
+/* Текстовые блоки */
+#screen {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    min-height: 200px;
+    box-shadow: inset 0 0 10px #d4af37;
+    color: #f5f3e7;
+}
+
+/* Мобильная адаптивность */
+@media (max-width: 640px) {
+    #game {
+        margin: 20px 10px;
+        padding: 15px 20px;
+    }
+    button {
+        font-size: 16px;
+        padding: 10px 15px;
+        margin: 5px 3px;
+    }
+    #screen {
+        font-size: 14px;
+        min-height: 150px;
+    }
 }
